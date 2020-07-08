@@ -33,7 +33,6 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping(Routes.USER)
 @CrossOrigin(value = "*")
 
 public class UserController {

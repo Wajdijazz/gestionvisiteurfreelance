@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 
-import org.springframework.security.web.AuthenticationEntryPoint;
 
+@Component
 public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthEntryPoint.class);
 

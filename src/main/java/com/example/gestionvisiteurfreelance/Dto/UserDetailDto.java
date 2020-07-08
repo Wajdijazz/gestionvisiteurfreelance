@@ -27,4 +27,6 @@ public class UserDetailDto {
     private String companyWebSite;
 
     private double userPhone;
+
+
 }

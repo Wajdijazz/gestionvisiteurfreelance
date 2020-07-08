@@ -7,11 +7,17 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 
+import com.example.gestionvisiteurfreelance.Dto.UserDetailDto;
+import com.example.gestionvisiteurfreelance.Dto.UserDto;
 import com.example.gestionvisiteurfreelance.Repository.RoleRepository;
 import com.example.gestionvisiteurfreelance.Repository.UserRepository;
+import com.example.gestionvisiteurfreelance.Services.IEmployeeServices;
 import com.example.gestionvisiteurfreelance.Services.IUserService;
+import com.example.gestionvisiteurfreelance.entities.Role;
 import com.example.gestionvisiteurfreelance.entities.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -27,11 +33,14 @@ import lombok.AllArgsConstructor;
 @Service
 public class UserServiceImpl implements IUserService {
 
+
     private UserRepository userRepository;
+
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
-    private IPersonService personService;
-    private ICompanyClientService companyClientService;
+
+    private IEmployeeServices employeeServices;
+
 
     @Qualifier("getJavaMailSendeGmail")
     public JavaMailSender emailSendergmail;
@@ -46,15 +55,14 @@ public class UserServiceImpl implements IUserService {
     // create Admin methode to save company and user and person in same time
 
     @Override
-    public User createUser(User user) throws MessagingException {
-        if (userRepository.findByEmail(user.getEmail()) != null)
+    public User createUser(UserDto userDto) throws MessagingException {
+        if (userRepository.findByEmail(userDto.getEmail()) != null)
             throw new ResourceNotFoundException("User already exists");
         if (!userDto.getPassword().equals(userDto.getConfirmedPassword()))
             throw new ResourceNotFoundException("Please confirm your password");
         User userToSave = User.builder().email(userDto.getEmail())
                 .password(passwordEncoder.encode(userDto.getPassword()))
-                .person(personService.getPersonById(userDto.getPersonId()))
-                .companyClient(companyClientService.getCompanyById(userDto.getCompanyClientId())).isActive(true)
+                .person(employeeServices.getPersonById(userDto.getPersonId()))
                 .build();
         userToSave.setRoles(affectRoleToUser(userDto));
         //	sendMail("", userDto.getEmail(), userDto.getPassword());
@@ -64,8 +72,10 @@ public class UserServiceImpl implements IUserService {
     @Override
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ApplicationException("This user with Id" + userId + "not exist"));
+                .orElseThrow(() -> new ApplicationContextException("This user with Id" + userId + "not exist"));
     }
+
+
 
     @Override
     public void sendMail(String messageToSend, String email, String password) throws MessagingException {
@@ -107,24 +117,24 @@ public class UserServiceImpl implements IUserService {
             switch (role) {
                 case "SUPERADMIN":
                     Role SuperAdminRole = roleRepository.findByRoleDescription("SUPERADMIN")
-                            .orElseThrow(() -> new ApplicationException("Fail! -> Cause: User Role not find."));
+                            .orElseThrow(() -> new ApplicationContextException("Fail! -> Cause: User Role not find."));
                     roles.add(SuperAdminRole);
                     break;
                 case "GESTIONARY":
                     Role GestionnaryRole = roleRepository.findByRoleDescription("GESTIONARY")
-                            .orElseThrow(() -> new ApplicationException("Fail! -> Cause: User Role not find."));
+                            .orElseThrow(() -> new ApplicationContextException("Fail! -> Cause: User Role not find."));
                     roles.add(GestionnaryRole);
                     break;
 
                 case "USER":
                     Role UserRole = roleRepository.findByRoleDescription("USER")
-                            .orElseThrow(() -> new ApplicationException("Fail! -> Cause: User Role not find."));
+                            .orElseThrow(() -> new ApplicationContextException("Fail! -> Cause: User Role not find."));
                     roles.add(UserRole);
                     break;
 
                 case "AUDIT":
                     Role AuditRole = roleRepository.findByRoleDescription("AUDIT")
-                            .orElseThrow(() -> new ApplicationException("Fail! -> Cause: User Role not find."));
+                            .orElseThrow(() -> new ApplicationContextException("Fail! -> Cause: User Role not find."));
                     roles.add(AuditRole);
                     break;
             }
@@ -145,11 +155,9 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserDetailDto getUserInfoByEmail(String email) {
         User user = userRepository.findByEmail(email);
-        return UserDetailDto.builder().userId(user.getUserId()).companyName(user.getCompanyClient().getCompanyName())
+        return UserDetailDto.builder().userId(user.getUserId())
                 .userFirstName(user.getPerson().getFirstName()).userLastName(user.getPerson().getLastName())
                 .userPhone(user.getPerson().getPhoneNumber())
-                .companyWebSite(user.getCompanyClient().getCompanyWebSite())
-                .companyId(user.getCompanyClient().getCompanyId())
                 .build();
     }
 

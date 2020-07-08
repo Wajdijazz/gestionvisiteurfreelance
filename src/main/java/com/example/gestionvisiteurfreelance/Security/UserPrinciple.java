@@ -44,12 +44,7 @@ public class UserPrinciple  implements UserDetails{
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrinciple(Long id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.authorities = authorities;
-    }
+
 
     public static UserPrinciple build(User user) {
         List<GrantedAuthority> authorities = user.getRoles().stream()

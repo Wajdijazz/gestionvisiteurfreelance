@@ -8,7 +8,6 @@ import javax.persistence.Table;
 import lombok.*;
 
 @Entity
-@Table(name = "Role")
 @Builder
 @Data
 @AllArgsConstructor
@@ -21,19 +20,5 @@ public class Role {
     private Long id;
     private String roleDescription;
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getRoleDescription() {
-        return roleDescription;
-    }
-
-    public void setRoleDescription(String roleDescription) {
-        this.roleDescription = roleDescription;
-    }
 }

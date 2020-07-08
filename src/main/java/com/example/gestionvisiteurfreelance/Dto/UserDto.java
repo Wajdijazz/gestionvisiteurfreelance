@@ -10,8 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-@Getter
-@Setter
+
 /**
  * All Dto class to get Data from Front
  *
@@ -35,4 +34,6 @@ public class UserDto {
     private Long personId;
 
     private Long companyClientId;
+
+
 }

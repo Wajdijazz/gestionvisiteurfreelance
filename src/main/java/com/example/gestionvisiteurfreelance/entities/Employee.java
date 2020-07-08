@@ -47,4 +47,6 @@ public class Employee {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
 
     private Society_Visitor society;
+
+
 }
